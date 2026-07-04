@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -29,7 +28,7 @@ public class ActivitySubmission {
     @Column(name = "activity_title", nullable = false, length = 100)
     private String activityTitle;
 
-    @Lob
+
     @Column(name = "image_data", nullable = false, columnDefinition = "TEXT")
     private String imageData;
 
