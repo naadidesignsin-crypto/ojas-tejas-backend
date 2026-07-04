@@ -71,6 +71,8 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/gallery/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/workshops/**"
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
