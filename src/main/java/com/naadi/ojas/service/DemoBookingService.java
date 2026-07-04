@@ -8,6 +8,8 @@ import com.naadi.ojas.repository.DemoBookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -18,7 +20,28 @@ public class DemoBookingService {
     private final EmailService emailService;
 
     public DemoBookingResponse createDemoBooking(DemoBookingRequest request) {
-        DemoBooking demoBooking = mapToEntity(request);
+        String bookingKey = buildBookingKey(request);
+
+        DemoBooking demoBooking = demoBookingRepository
+                .findByBookingKey(bookingKey)
+                .orElseGet(DemoBooking::new);
+
+        demoBooking.setParentName(request.getParentName().trim());
+        demoBooking.setChildName(request.getChildName().trim());
+        demoBooking.setChildAge(request.getChildAge());
+        demoBooking.setPhone(request.getPhone().trim());
+        demoBooking.setEmail(request.getEmail().trim());
+        demoBooking.setPreferredClass(request.getPreferredClass().trim());
+        demoBooking.setMessage(cleanValue(request.getMessage()));
+        demoBooking.setBookingKey(bookingKey);
+
+        if (demoBooking.getCreatedAt() == null) {
+            demoBooking.setCreatedAt(LocalDateTime.now());
+        }
+
+        if (demoBooking.getLiveLinkSent() == null) {
+            demoBooking.setLiveLinkSent(false);
+        }
 
         DemoBooking savedBooking = demoBookingRepository.save(demoBooking);
 
@@ -28,6 +51,12 @@ public class DemoBookingService {
     public List<DemoBookingResponse> getAllBookings() {
         return demoBookingRepository.findAll()
                 .stream()
+                .sorted(
+                        Comparator.comparing(
+                                DemoBooking::getCreatedAt,
+                                Comparator.nullsLast(Comparator.reverseOrder())
+                        )
+                )
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -50,7 +79,14 @@ public class DemoBookingService {
                 request.getNote()
         );
 
-        return mapToResponse(demoBooking);
+        demoBooking.setLiveLink(request.getLiveLink().trim());
+        demoBooking.setLiveLinkNote(cleanValue(request.getNote()));
+        demoBooking.setLiveLinkSent(true);
+        demoBooking.setLiveLinkSentAt(LocalDateTime.now());
+
+        DemoBooking savedBooking = demoBookingRepository.save(demoBooking);
+
+        return mapToResponse(savedBooking);
     }
 
     private DemoBooking findBookingById(Long id) {
@@ -58,20 +94,6 @@ public class DemoBookingService {
                 .orElseThrow(() -> new RuntimeException(
                         "Demo booking not found with id: " + id
                 ));
-    }
-
-    private DemoBooking mapToEntity(DemoBookingRequest request) {
-        DemoBooking demoBooking = new DemoBooking();
-
-        demoBooking.setParentName(request.getParentName());
-        demoBooking.setChildName(request.getChildName());
-        demoBooking.setChildAge(request.getChildAge());
-        demoBooking.setPhone(request.getPhone());
-        demoBooking.setEmail(request.getEmail());
-        demoBooking.setPreferredClass(request.getPreferredClass());
-        demoBooking.setMessage(request.getMessage());
-
-        return demoBooking;
     }
 
     private DemoBookingResponse mapToResponse(DemoBooking demoBooking) {
@@ -85,7 +107,44 @@ public class DemoBookingService {
         response.setEmail(demoBooking.getEmail());
         response.setPreferredClass(demoBooking.getPreferredClass());
         response.setMessage(demoBooking.getMessage());
+        response.setCreatedAt(demoBooking.getCreatedAt());
+
+        response.setLiveLink(demoBooking.getLiveLink());
+        response.setLiveLinkNote(demoBooking.getLiveLinkNote());
+        response.setLiveLinkSent(
+                demoBooking.getLiveLinkSent() != null
+                        ? demoBooking.getLiveLinkSent()
+                        : false
+        );
+        response.setLiveLinkSentAt(demoBooking.getLiveLinkSentAt());
 
         return response;
+    }
+
+    private String buildBookingKey(DemoBookingRequest request) {
+        return cleanKey(request.getParentName()) + "|" +
+                cleanKey(request.getChildName()) + "|" +
+                cleanKey(request.getPhone()) + "|" +
+                cleanKey(request.getEmail()) + "|" +
+                cleanKey(request.getPreferredClass());
+    }
+
+    private String cleanKey(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .trim()
+                .toLowerCase()
+                .replaceAll("\\s+", " ");
+    }
+
+    private String cleanValue(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

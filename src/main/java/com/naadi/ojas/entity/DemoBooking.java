@@ -47,6 +47,21 @@ public class DemoBooking {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "booking_key", unique = true, length = 500)
+    private String bookingKey;
+
+    @Column(name = "live_link", length = 500)
+    private String liveLink;
+
+    @Column(name = "live_link_note", length = 500)
+    private String liveLinkNote;
+
+    @Column(name = "live_link_sent")
+    private Boolean liveLinkSent = false;
+
+    @Column(name = "live_link_sent_at")
+    private LocalDateTime liveLinkSentAt;
+
     @PrePersist
     private void beforeSave() {
         if (status == null || status.isBlank()) {
@@ -57,83 +72,4 @@ public class DemoBooking {
         }
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getParentName() {
-        return parentName;
-    }
-
-    public void setParentName(String parentName) {
-        this.parentName = parentName;
-    }
-
-    public String getChildName() {
-        return childName;
-    }
-
-    public void setChildName(String childName) {
-        this.childName = childName;
-    }
-
-    public Integer getChildAge() {
-        return childAge;
-    }
-
-    public void setChildAge(Integer childAge) {
-        this.childAge = childAge;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPreferredClass() {
-        return preferredClass;
-    }
-
-    public void setPreferredClass(String preferredClass) {
-        this.preferredClass = preferredClass;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
