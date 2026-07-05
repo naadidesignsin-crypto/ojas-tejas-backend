@@ -1,5 +1,6 @@
 package com.naadi.ojas.service;
 
+import com.naadi.ojas.entity.ContactInquiry;
 import com.naadi.ojas.entity.DemoBooking;
 import com.naadi.ojas.entity.WorkshopBooking;
 import jakarta.mail.internet.MimeMessage;
@@ -244,4 +245,38 @@ public class EmailService {
 
         sendHtmlEmail(booking.getEmail(), subject, body);
     }
+
+    public void sendContactInquiryAcknowledgement(ContactInquiry inquiry) {
+        String subject = "We received your message - Ojas by Tejas";
+
+        String body = OjasEmailTemplate.buildEmail(
+                "We Received Your Message",
+                "Hi " + inquiry.getParentName() + ",",
+                """
+                <p>Thank you for contacting Ojas by Tejas.</p>
+    
+                <p>We received your inquiry and our team will get back to you soon.</p>
+    
+                <table style="width:100%%;margin-top:18px;border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:10px;border-bottom:1px solid #d9e8ff;"><b>Phone</b></td>
+                        <td style="padding:10px;border-bottom:1px solid #d9e8ff;">%s</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px;border-bottom:1px solid #d9e8ff;"><b>Message</b></td>
+                        <td style="padding:10px;border-bottom:1px solid #d9e8ff;">%s</td>
+                    </tr>
+                </table>
+                """.formatted(
+                        inquiry.getPhone(),
+                        inquiry.getMessage()
+                ),
+                null,
+                null,
+                "You can also book a free trial session from the Ojas by Tejas website."
+        );
+
+        sendHtmlEmail(inquiry.getEmail(), subject, body);
+    }
+
 }
