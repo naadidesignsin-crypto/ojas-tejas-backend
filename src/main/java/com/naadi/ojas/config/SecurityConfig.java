@@ -75,6 +75,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/student/login"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/student/workshop-bookings"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/workshop-bookings"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/contact-inquiries"
