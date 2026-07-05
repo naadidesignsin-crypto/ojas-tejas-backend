@@ -214,6 +214,23 @@ public class WorkshopBookingService {
         return response;
     }
 
+    public List<WorkshopBookingResponse> getStudentWorkshopBookings(
+            String email,
+            String phone
+    ) {
+        return workshopBookingRepository.findStudentWorkshopBookings(
+                        clean(email),
+                        clean(phone)
+                )
+                .stream()
+                .map(booking -> mapToResponse(
+                        booking,
+                        false,
+                        getRemainingSeats(booking.getWorkshopDateId())
+                ))
+                .toList();
+    }
+
     private String buildBookingKey(WorkshopBookingRequest request) {
         return cleanKey(String.valueOf(request.getWorkshopId())) + "|" +
                 cleanKey(String.valueOf(request.getWorkshopDateId())) + "|" +
