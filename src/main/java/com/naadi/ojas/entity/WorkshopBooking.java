@@ -52,7 +52,7 @@ public class WorkshopBooking {
     @Column(length = 700)
     private String message;
 
-    @Column(name = "booking_key", length = 700)
+    @Column(name = "booking_key", unique = true, length = 700)
     private String bookingKey;
 
     @Column(nullable = false, length = 30)

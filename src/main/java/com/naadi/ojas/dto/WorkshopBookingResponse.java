@@ -22,4 +22,7 @@ public class WorkshopBookingResponse {
     private String message;
     private String status;
     private LocalDateTime createdAt;
+
+    private Boolean alreadyBooked;
+    private Integer remainingSeats;
 }
