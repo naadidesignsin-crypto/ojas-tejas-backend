@@ -106,7 +106,7 @@ public class WorkshopService {
         workshopDate.setWorkshopDate(request.getWorkshopDate());
         workshopDate.setStartTime(request.getStartTime());
         workshopDate.setEndTime(request.getEndTime());
-        workshopDate.setSeats(request.getSeats());
+        workshopDate.setAvailableSeats(request.getSeats());
         workshopDate.setMode(clean(request.getMode()));
         workshopDate.setMeetingLink(clean(request.getMeetingLink()));
 
@@ -181,7 +181,7 @@ public class WorkshopService {
                 .workshopDate(date.getWorkshopDate())
                 .startTime(date.getStartTime())
                 .endTime(date.getEndTime())
-                .seats(date.getSeats())
+                .seats(date.getAvailableSeats())
                 .mode(date.getMode())
                 .meetingLink(includeMeetingLink ? date.getMeetingLink() : null)
                 .build();

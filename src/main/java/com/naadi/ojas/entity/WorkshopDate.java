@@ -34,8 +34,8 @@ public class WorkshopDate {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
-    @Column(nullable = false)
-    private Integer seats;
+    @Column(name = "available_seats")
+    private Integer availableSeats;
 
     @Column(length = 60)
     private String mode;
