@@ -26,6 +26,8 @@ public class DemoBookingService {
                 .findByBookingKey(bookingKey)
                 .orElseGet(DemoBooking::new);
 
+        boolean newBooking = demoBooking.getId() == null;
+
         demoBooking.setParentName(request.getParentName().trim());
         demoBooking.setChildName(request.getChildName().trim());
         demoBooking.setChildAge(request.getChildAge());
@@ -44,6 +46,10 @@ public class DemoBookingService {
         }
 
         DemoBooking savedBooking = demoBookingRepository.save(demoBooking);
+
+        if (newBooking) {
+            emailService.sendDemoBookingConfirmation(savedBooking);
+        }
 
         return mapToResponse(savedBooking);
     }

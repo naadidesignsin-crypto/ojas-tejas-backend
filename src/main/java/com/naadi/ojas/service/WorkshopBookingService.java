@@ -8,12 +8,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class WorkshopBookingService {
 
+    private static final Set<String> ALLOWED_STATUSES = Set.of(
+            "NEW",
+            "CONFIRMED",
+            "CANCELLED",
+            "COMPLETED"
+    );
+
     private final WorkshopBookingRepository workshopBookingRepository;
+    private final EmailService emailService;
 
     public WorkshopBookingResponse createBooking(WorkshopBookingRequest request) {
         String bookingKey = buildBookingKey(request);
@@ -21,6 +30,8 @@ public class WorkshopBookingService {
         WorkshopBooking booking = workshopBookingRepository
                 .findByBookingKey(bookingKey)
                 .orElseGet(WorkshopBooking::new);
+
+        boolean newBooking = booking.getId() == null;
 
         booking.setWorkshopId(request.getWorkshopId());
         booking.setWorkshopDateId(request.getWorkshopDateId());
@@ -40,6 +51,10 @@ public class WorkshopBookingService {
 
         WorkshopBooking savedBooking = workshopBookingRepository.save(booking);
 
+        if (newBooking) {
+            emailService.sendWorkshopBookingConfirmation(savedBooking);
+        }
+
         return mapToResponse(savedBooking);
     }
 
@@ -56,9 +71,26 @@ public class WorkshopBookingService {
                         "Workshop booking not found with id: " + id
                 ));
 
-        booking.setStatus(clean(status).toUpperCase());
+        String newStatus = clean(status).toUpperCase();
+
+        if (!ALLOWED_STATUSES.contains(newStatus)) {
+            throw new RuntimeException(
+                    "Invalid workshop booking status: " + status
+            );
+        }
+
+        String oldStatus = booking.getStatus();
+
+        boolean statusChanged = oldStatus == null ||
+                !oldStatus.equalsIgnoreCase(newStatus);
+
+        booking.setStatus(newStatus);
 
         WorkshopBooking savedBooking = workshopBookingRepository.save(booking);
+
+        if (statusChanged) {
+            emailService.sendWorkshopStatusUpdate(savedBooking);
+        }
 
         return mapToResponse(savedBooking);
     }
